@@ -11,6 +11,7 @@ simple:
 
     nuget restore && msbuild  (using system mono 5 or 6)
 or
+
     nuget restore && /opt/mono4-sil/bin/xbuild  (using mono4-sil)
 
 ## Testing
@@ -20,4 +21,5 @@ program.  Testing the program is again a simple command line:
 
     ./RunTest.sh  (using system mono)
 or
+
     ./RunTestMono4Sil.sh  (using mono4-sil)
