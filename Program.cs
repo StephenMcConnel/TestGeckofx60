@@ -78,6 +78,8 @@ namespace TestGeckofx60
 		private static void InitializeGeckofx()
 		{
 			var firefoxDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase.Replace("file://", "")), "Firefox");
+			if (Platform.IsWindows)
+				firefoxDir = firefoxDir.Substring(1);
 			Xpcom.Initialize(firefoxDir);
 
 			// Settings used in Bloom (https://github.com/BloomBooks/BloomDesktop /src/BloomExe/Browser.cs).  More comments on them there.
