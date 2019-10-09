@@ -30,14 +30,17 @@ namespace TestGeckofx60
 		private static Form InitializeControls()
 		{
 			_browser = new GeckoWebBrowser { Dock = DockStyle.Fill };
-			var button = new Button
+			var switchButton = new Button
 			{
 				Location = new Point(600, 5),
 				Size = new Size(70, 20),
 				Anchor = AnchorStyles.Bottom | AnchorStyles.Right,
-				Text = "Switch"
+				Font = new System.Drawing.Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0))),
+				Text = "Switch",
+				UseVisualStyleBackColor = true
 			};
-			button.Click += ButtonClicked;
+			switchButton.Text = "Switch";
+			switchButton.Click += SwitchButtonClicked;
 			_label = new Label
 			{
 				Location = new Point(10, 5),
@@ -45,13 +48,25 @@ namespace TestGeckofx60
 				Text = "Unset",
 				AutoSize = true
 			};
+			var memoryButton = new Button
+			{
+				Location = new Point(510, 5),
+				Size = new Size(70, 20),
+				Anchor = AnchorStyles.Bottom | AnchorStyles.Right,
+				Font = new Font("Segoe UI", 9F, FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0))),
+				Text = "Memory",
+				UseVisualStyleBackColor = true
+			};
+			memoryButton.Text = "Memory";
+			memoryButton.Click += MemoryButtonClicked;
 			var panel = new Panel
 			{
 				Size = new Size(675, 30),
 				Dock = DockStyle.Bottom
 			};
 			panel.Controls.Add(_label);
-			panel.Controls.Add(button);
+			panel.Controls.Add(switchButton);
+			panel.Controls.Add(memoryButton);
 			var f = new Form { Size = new Size(700, 550) };
 			f.Controls.Add(_browser);
 			f.Controls.Add(panel);
@@ -65,7 +80,7 @@ namespace TestGeckofx60
 			var firefoxDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase.Replace("file://", "")), "Firefox");
 			Xpcom.Initialize(firefoxDir);
 
-			// Settings used in Bloom (https://github.com/BloomBooks/BloomDesktop).  More comments on them there.
+			// Settings used in Bloom (https://github.com/BloomBooks/BloomDesktop /src/BloomExe/Browser.cs).  More comments on them there.
 			GeckoPreferences.User["network.proxy.http"] = string.Empty;
 			GeckoPreferences.User["network.proxy.http_port"] = 80;
 			GeckoPreferences.User["network.proxy.type"] = 1; // 0 = direct (uses system settings on Windows), 1 = manual configuration
@@ -96,7 +111,7 @@ namespace TestGeckofx60
 			GeckoPreferences.User["layout.spellcheckDefault"] = 0;
 		}
 
-		static void ButtonClicked(object sender, EventArgs e)
+		static void SwitchButtonClicked(object sender, EventArgs e)
 		{
 			switch (_currentPage)
 			{
@@ -112,6 +127,27 @@ namespace TestGeckofx60
 				case "tictactoe/index.html": _currentPage = "Test0.html"; break;
 			}
 			Navigate();
+		}
+
+		static Form _aboutMemory;
+		static GeckoWebBrowser _memoryBrowser;
+
+		static void MemoryButtonClicked(object sender, EventArgs e)
+		{
+			if (_aboutMemory != null && !_aboutMemory.IsDisposed)
+				return;
+			Console.WriteLine("Opening about:memory window");
+			_memoryBrowser = new GeckoWebBrowser { Dock = DockStyle.Fill };
+			_aboutMemory = new Form { Size = new Size(700, 700) };
+			_aboutMemory.FormClosed += _aboutMemory_FormClosed;
+			_aboutMemory.Controls.Add(_memoryBrowser);
+			_aboutMemory.Show();
+			_memoryBrowser.Navigate("about:memory");
+		}
+
+		static void _aboutMemory_FormClosed(object sender, FormClosedEventArgs e)
+		{
+			_memoryBrowser.Dispose();
 		}
 
 		static void Navigate()
