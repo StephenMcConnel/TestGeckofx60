@@ -5,6 +5,8 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProjectGuid>{EF110DA5-8086-4A54-9630-6A7CF236B2E7}</ProjectGuid>
     <OutputType>Exe</OutputType>
+    <PackagesConfig Condition="'$(OS)'=='Windows_NT'">$(MSBuildProjectDirectory)\packages.config</PackagesConfig>
+    <PackagesConfig Condition="'$(OS)'!='Windows_NT'">$(MSBuildProjectDirectory)/Linux/packages.config</PackagesConfig>
     <RootNamespace>TestGeckofx60</RootNamespace>
     <AssemblyName>TestGeckofx60</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
@@ -29,11 +31,17 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="Geckofx-Core">
+    <Reference Include="Geckofx-Core" Condition="'$(OS)'!='Windows_NT'">
       <HintPath>packages\Geckofx60.64.Linux.60.0.39\lib\net40\Geckofx-Core.dll</HintPath>
     </Reference>
-    <Reference Include="Geckofx-Winforms">
+    <Reference Include="Geckofx-Winforms" Condition="'$(OS)'!='Windows_NT'">
       <HintPath>packages\Geckofx60.64.Linux.60.0.39\lib\net40\Geckofx-Winforms.dll</HintPath>
+    </Reference>
+    <Reference Include="Geckofx-Core" Condition="'$(OS)'=='Windows_NT'">
+      <HintPath>packages\Geckofx60.32.60.0.39\lib\net45\Geckofx-Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Geckofx-Winforms" Condition="'$(OS)'=='Windows_NT'">
+      <HintPath>packages\Geckofx60.32.60.0.39\lib\net45\Geckofx-Winforms.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing" />
   </ItemGroup>
@@ -47,8 +55,11 @@
   <ItemGroup>
     <ConfigFiles Include="packages\Geckofx60.64.Linux.60.0.39\build\*.config" />
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition="'$(OS)'!='Windows_NT'">
     <FirefoxFiles Include="packages\Geckofx60.64.Linux.60.0.39\content\Firefox-Linux64\*.*" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(OS)'=='Windows_NT'">
+    <FirefoxFiles Include="packages\Geckofx60.32.60.0.39\content\Firefox\*.*" />
   </ItemGroup>
   <ItemGroup>
     <None Include="html\Test0.html">
