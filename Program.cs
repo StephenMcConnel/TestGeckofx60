@@ -12,7 +12,7 @@ namespace TestGeckofx60
 		static GeckoWebBrowser _browser;
 		static Label _label;
 		static string _urlFolder;
-		static string _currentPage = "Test0.html";
+		static string _currentPage = "TestA.html";
 		static int _count;
 
         [STAThread]
@@ -117,7 +117,8 @@ namespace TestGeckofx60
 		{
 			switch (_currentPage)
 			{
-				case "Test0.html":  _currentPage = "Test1.html"; break;
+				case "TestA.html": _currentPage = "Test0.html"; break;
+				case "Test0.html": _currentPage = "Test1.html"; break;
 				case "Test1.html": _currentPage = "Test2.html"; break;
 				case "Test2.html": _currentPage = "Test3.html"; break;
 				case "Test3.html": _currentPage = "Test4.html"; break;
@@ -126,7 +127,7 @@ namespace TestGeckofx60
 				case "Test6.html": _currentPage = "Test7.html"; break;
 				case "Test7.html": _currentPage = "Test8.html"; break;
 				case "Test8.html": _currentPage = "tictactoe/index.html"; break;
-				case "tictactoe/index.html": _currentPage = "Test0.html"; break;
+				case "tictactoe/index.html": _currentPage = "TestA.html"; break;
 			}
 			Navigate();
 		}
