@@ -87,10 +87,12 @@ namespace TestGeckofx60
 			GeckoPreferences.User["network.proxy.http_port"] = 80;
 			GeckoPreferences.User["network.proxy.type"] = 1; // 0 = direct (uses system settings on Windows), 1 = manual configuration
 			GeckoPreferences.User["memory.free_dirty_pages"] = true;
-			// Do NOT set this to zero. Somehow that disables following hyperlinks within a document
+			//// Do NOT set this to zero. Somehow that disables following hyperlinks within a document
 			GeckoPreferences.User["browser.sessionhistory.max_entries"] = 1;
 			GeckoPreferences.User["browser.sessionhistory.max_total_viewers"] = 0;
+			GeckoPreferences.User["browser.sessionhistory.contentViewerTimeout"] = 1;	// 1 second
 			GeckoPreferences.User["browser.cache.memory.enable"] = false;
+			GeckoPreferences.User["browser.cache.memory.capacity"] = 0;             // 0 disables feature
 			GeckoPreferences.User["image.mem.max_decoded_image_kb"] = 40960;        // 40MB (default = 256000 == 250MB)
 			GeckoPreferences.User["javascript.options.mem.max"] = 40960;            // 40MB (default = -1 == automatic)
 			GeckoPreferences.User["javascript.options.mem.high_water_mark"] = 20;   // 20MB (default = 128 == 128MB)
@@ -99,7 +101,6 @@ namespace TestGeckofx60
 			else
 				GeckoPreferences.User["image.mem.surfacecache.max_size_kb"] = 40960;    // 40MB
 			GeckoPreferences.User["image.mem.surfacecache.min_expiration_ms"] = 500;    // 500ms (default = 60000 == 60sec)
-			GeckoPreferences.User["browser.cache.memory.capacity"] = 0;             // 0 disables feature
 			GeckoPreferences.User["network.http.max-persistent-connections-per-server"] = 200;
 			GeckoPreferences.User["network.http.pipelining.maxrequests"] = 200;
 			GeckoPreferences.User["network.http.pipelining.max-optimistic-requests"] = 200;
@@ -111,6 +112,12 @@ namespace TestGeckofx60
 				GeckoPreferences.User["layers.acceleration.force-enabled"] = true;
 			GeckoPreferences.User["browser.zoom.full"] = true;
 			GeckoPreferences.User["layout.spellcheckDefault"] = 0;
+
+			//// new items being tried
+			//GeckoPreferences.User["browser.cache.disk.enable"] = false;
+			//GeckoPreferences.User["browser.cache.disk.capacity"] = 0;             // 0 disables feature
+			//GeckoPreferences.User["browser.cache.offline.enable"] = false;
+			//GeckoPreferences.User["places.history.enabled"] = false;
 		}
 
 		static void SwitchButtonClicked(object sender, EventArgs e)
@@ -157,17 +164,28 @@ namespace TestGeckofx60
 			var url = _urlFolder + "/" + _currentPage;
 			_browser.DocumentCompleted += WebBrowser_ReadyStateChanged;
 			_browser.ReadyStateChange += WebBrowser_ReadyStateChanged;
-			_browser.Navigate(url);
+			_browser.Navigate(url, GeckoLoadFlags.BypassHistory | GeckoLoadFlags.BypassCache);
 			++_count;
 			_label.Text = _count == 1 ? "1 page seen" : String.Format("{0} pages seen", _count);
 		}
 
 		static void WebBrowser_ReadyStateChanged(object sender, EventArgs e)
 		{
+			if (e is DomEventArgs)
+			{
+				Console.WriteLine("DEBUG: e.EventPhase={0}, e.Type={1}", ((DomEventArgs)e).EventPhase, ((DomEventArgs)e).Type);
+			}
+			else
+			{
+				Console.WriteLine("DEBUG: e.Uri={0}", (e as Gecko.Events.GeckoDocumentCompletedEventArgs)?.Uri);
+			}
 			if (_browser.Document.ReadyState != "complete")
 				return; // Keep receiving until it is complete.
 			_browser.ReadyStateChange -= WebBrowser_ReadyStateChanged; // just do this once per navigation
 			_browser.DocumentCompleted -= WebBrowser_ReadyStateChanged;
+			GC.Collect();
+			GC.WaitForPendingFinalizers();
+			MemoryService.MinimizeHeap(true);
 			MemoryManagement.CheckMemory(String.Format("{0} loaded", _currentPage), false);
 		}
 	}
